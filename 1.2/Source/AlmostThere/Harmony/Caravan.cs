@@ -61,19 +61,19 @@ namespace AlmostThere.Harmony
     {
         static void Postfix(Caravan __instance, ref IEnumerable<Gizmo> __result)
         {
-            var gizmoList = __result.ToList();
-            var store = Base.Instance.GetExtendedDataStorage();
-            var caravanData = store.GetExtendedDataFor(__instance);
             if(__instance.Faction == Faction.OfPlayer)
             {
-                if(caravanData != null)
+                var gizmoList = __result.ToList();
+                var store = Base.Instance.GetExtendedDataStorage();
+                var caravanData = store.GetExtendedDataFor(__instance);
+                if (caravanData != null)
                 {
                     gizmoList.Add(CreateAlmostThereCommand(__instance, caravanData));
                     gizmoList.Add(CreateIgnoreRestCommand(__instance, caravanData));
                     gizmoList.Add(CreateForceRestCommand(__instance, caravanData));
                 }
+                __result = gizmoList;
             }
-            __result = gizmoList;
         }
 
         private static Command_Toggle CreateIgnoreRestCommand(Caravan __instance, ExtendedCaravanData caravanData)
