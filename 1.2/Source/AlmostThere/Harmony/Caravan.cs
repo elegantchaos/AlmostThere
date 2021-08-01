@@ -29,24 +29,26 @@ namespace AlmostThere.Harmony
                         return;
                     }
 
-                    if (data.forceRest)
-                    {
-                        __result = true;
-                        
-                    }
-                    if (data.fullyIgnoreRest)
-                    {
-                        __result = false;
-                    }
-                    if (data.almostThere)
-                    {
-                        var estimatedTicks = (float)CaravanArrivalTimeEstimator.EstimatedTicksToArrive(__instance, allowCaching: true);
-                        var restTicksLeft = CaravanNightRestUtility.LeftRestTicksAt(__instance.Tile, Find.TickManager.TicksAbs);
-                        estimatedTicks -= restTicksLeft;
-                        if (estimatedTicks/GenDate.TicksPerHour < Base.almostThereHours.Value)
-                        {
+                    switch (data.mode) {
+                        case RestMode.ForceRest:
+                            __result = true;
+                            break;
+
+                        case RestMode.DontRest:
                             __result = false;
-                        }
+                            break;
+
+                        case RestMode.AlmostThere:
+                            if (__result) {
+                                var estimatedTicks = (float)CaravanArrivalTimeEstimator.EstimatedTicksToArrive(__instance, allowCaching: true);
+                                var restTicksLeft = CaravanNightRestUtility.LeftRestTicksAt(__instance.Tile, Find.TickManager.TicksAbs);
+                                estimatedTicks -= restTicksLeft;
+                                if (estimatedTicks / GenDate.TicksPerHour < Base.almostThereHours.Value)
+                                {
+                                    __result = false;
+                                }
+                            }
+                            break;
                     }
 
                     data.cache = __result ? CacheState.Resting : CacheState.NotResting;
@@ -79,15 +81,10 @@ namespace AlmostThere.Harmony
         private static Command_Toggle CreateIgnoreRestCommand(Caravan __instance, ExtendedCaravanData caravanData)
         {
             Command_Toggle command_Toggle = new Command_Toggle();
-            command_Toggle.isActive = (() => caravanData.fullyIgnoreRest);
+            command_Toggle.isActive = (() => caravanData.mode == RestMode.DontRest);
             command_Toggle.toggleAction = delegate
             {
-                caravanData.fullyIgnoreRest = !caravanData.fullyIgnoreRest;
-                if (caravanData.fullyIgnoreRest)
-                {
-                    caravanData.forceRest = false;
-                    caravanData.almostThere = false;
-                }
+                caravanData.mode = RestMode.DontRest;
             };
             command_Toggle.defaultDesc = "AT_Command_DontRest_Description".Translate();
             command_Toggle.icon = ContentFinder<Texture2D>.Get(("UI/" + "DontRest"), true);
@@ -97,15 +94,10 @@ namespace AlmostThere.Harmony
         private static Command_Toggle CreateAlmostThereCommand(Caravan __instance, ExtendedCaravanData caravanData)
         {
             Command_Toggle command_Toggle = new Command_Toggle();
-            command_Toggle.isActive = (() => caravanData.almostThere);
+            command_Toggle.isActive = (() => caravanData.mode == RestMode.AlmostThere);
             command_Toggle.toggleAction = delegate
             {
-                caravanData.almostThere = !caravanData.almostThere;
-                if (caravanData.almostThere)
-                {
-                    caravanData.forceRest = false;
-                    caravanData.fullyIgnoreRest = false;
-                }
+                caravanData.mode = RestMode.AlmostThere;
             };
             command_Toggle.defaultDesc = "AT_Command_AlmostThere_Description".Translate(Base.almostThereHours.Value);
             command_Toggle.icon = ContentFinder<Texture2D>.Get(("UI/" + "AlmostThere"), true);
@@ -116,15 +108,10 @@ namespace AlmostThere.Harmony
         private static Command_Toggle CreateForceRestCommand(Caravan __instance, ExtendedCaravanData caravanData)
         {
             Command_Toggle command_Toggle = new Command_Toggle();
-            command_Toggle.isActive = (() => caravanData.forceRest);
+            command_Toggle.isActive = (() => caravanData.mode == RestMode.ForceRest);
             command_Toggle.toggleAction = delegate
             {
-                caravanData.forceRest = !caravanData.forceRest;
-                if (caravanData.forceRest)
-                {
-                    caravanData.almostThere = false;
-                    caravanData.fullyIgnoreRest = false;
-                }
+                caravanData.mode = RestMode.ForceRest;
             };
             command_Toggle.defaultDesc = "AT_Command_ForceRest_Description".Translate();
             command_Toggle.icon = ContentFinder<Texture2D>.Get(("UI/" + "ForceRest"), true);

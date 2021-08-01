@@ -13,17 +13,20 @@ namespace AlmostThere.Storage
         Resting
     }
 
+    public enum RestMode
+    {
+        DontRest,
+        AlmostThere,
+        ForceRest,
+    }
+
     public class ExtendedCaravanData : IExposable
     {
         public CacheState cache = CacheState.NotCalculated;
-        public bool fullyIgnoreRest = false;
-        public bool forceRest = false;
-        public bool almostThere = true;
+        public RestMode mode = RestMode.AlmostThere;
         public void ExposeData()
         {
-            Scribe_Values.Look(ref almostThere, "almostThere", false);            
-            Scribe_Values.Look(ref fullyIgnoreRest, "fullyIgnoreRest", false);            
-            Scribe_Values.Look(ref forceRest, "forceRest", false);            
+            Scribe_Values.Look(ref mode, "mode", RestMode.AlmostThere);
         }
     }
 }
