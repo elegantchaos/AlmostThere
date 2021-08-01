@@ -18,15 +18,17 @@ namespace AlmostThere.Harmony
     {
         static void Postfix(Caravan __instance, ref bool __result)
         {
-            if (!__instance.IsHashIntervalTick(60))
-            {
-                __result = Base.Instance.cachedResult;
-                return;
-            }
             if(Base.Instance.GetExtendedDataStorage() is ExtendedDataStorage store)
             {
                 if (store.GetExtendedDataFor(__instance) is ExtendedCaravanData data)
                 {
+                    // return cached value if we have one, unless it's time to recalculate
+                    if ((data.cache != CacheState.NotCalculated) && !__instance.IsHashIntervalTick(60))
+                    {
+                        __result = data.cache == CacheState.Resting;
+                        return;
+                    }
+
                     if (data.forceRest)
                     {
                         __result = true;
@@ -46,9 +48,10 @@ namespace AlmostThere.Harmony
                             __result = false;
                         }
                     }
+
+                    data.cache = __result ? CacheState.Resting : CacheState.NotResting;
                 }
             }
-            Base.Instance.cachedResult = __result;
         }
     }
 

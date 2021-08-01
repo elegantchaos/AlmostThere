@@ -5,13 +5,17 @@ using System.Text;
 using Verse;
 using Verse.AI;
 
-//Note: Currently this class contains information specific for other mods (caravanMount, caravanRider, etc), which is of course not ideal for a core framework. Ideally it should be completely generic. However I have yet to come up with an
-// way to do this properly without introducing a lot of extra work. So for now I'll just keep it as it is. 
-
 namespace AlmostThere.Storage
 {
+    public enum CacheState {
+        NotCalculated,
+        NotResting,
+        Resting
+    }
+
     public class ExtendedCaravanData : IExposable
     {
+        public CacheState cache = CacheState.NotCalculated;
         public bool fullyIgnoreRest = false;
         public bool forceRest = false;
         public bool almostThere = true;

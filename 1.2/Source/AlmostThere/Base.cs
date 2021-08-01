@@ -17,8 +17,6 @@ namespace AlmostThere
         private ExtendedDataStorage _extendedDataStorage;
         internal static SettingHandle<int> almostThereHours;
 
-        public bool cachedResult = false;
-
         public Base()
         {
             Instance = this;
